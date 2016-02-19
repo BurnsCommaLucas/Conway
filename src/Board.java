@@ -62,25 +62,6 @@ public class Board {
 
     /**
      * seed - Method to seed the board with a random number
-     */
-    public void seed ()
-    {
-        Date date = new Date();
-        generator = new Random(date.getTime());
-
-        for (int i = 0; i < dim; i ++)
-        {
-            for (int j = 0; j < dim; j++)
-            {
-                grid[i][j] = generator.nextBoolean();
-            }
-        }
-
-        seedComplete = true;
-    }
-
-    /**
-     * seed - Method to seed the board with a random number
      *
      * @param seed String to input random number
      */
@@ -112,25 +93,6 @@ public class Board {
     public boolean isAlive (int x, int y)
     {
         return this.grid[x][y];
-    }
-
-    public void printBoard ()
-    {
-        for (int i = 0; i < dim; i ++)
-        {
-            for (int j = 0; j < dim; j++)
-            {
-                if (this.grid[i][j])
-                {
-                    System.out.print('0');
-                }
-                else
-                {
-                    System.out.print('1');
-                }
-            }
-            System.out.print('\n');
-        }
     }
 
     private int numAdj(int x, int y)
