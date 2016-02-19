@@ -11,7 +11,7 @@ public class Board {
     private boolean seedComplete;
     private boolean[][] grid;
     private Random generator;
-    private final int THRESHOLD = 10;
+    private final int THRESHOLD = 3;
 
     /**
      * Board - Default constructor for Board class
@@ -103,6 +103,13 @@ public class Board {
         return this.grid[x][y];
     }
 
+    /**
+     * numAdj - Counts the number of living cells adjacent to the one passed in
+     *
+     * @param x X coordinate of cell to be checked
+     * @param y Y coordinate of cell to be checked
+     * @return int number of living adjacent cells
+     */
     private int numAdj(int x, int y)
     {
         int count = 0;
@@ -125,6 +132,9 @@ public class Board {
         return count;
     }
 
+    /**
+     * advance - Advances the game to the next generation
+     */
     public void advance ()
     {
         boolean[][] newGrid = this.grid;
@@ -153,6 +163,10 @@ public class Board {
         }
     }
 
+    /**
+     * totalLiving - Counts the number of living cells on the board
+     * @return int number of living cells
+     */
     public int totalLiving ()
     {
         int count = 0;

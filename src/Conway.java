@@ -21,18 +21,18 @@ public class Conway
     // ==========================================
     // Constants
     // ==========================================
-    public static final int MAX_GAME_SIZE = 100;
+    public static final int MAX_BOARD_SIZE = 1000;
     public static final int BUFFER_DISTANCE = 15;
-    public static final int CELL_SIZE = 10;
+    public static final int CELL_SIZE = 5;
+    public static final int BOARD_OFFSET = (int) Math.floor(0.4 * MAX_BOARD_SIZE);
+    public static final int WINDOW_SIZE = (200 * CELL_SIZE) + (2 * BUFFER_DISTANCE);
 
     // ==========================================
     // Class parameters
     // ==========================================
-    public static int dimIn = 1;
     public static int seedIn = 0;
-    public static int windowSize = 0;
 
-    public static boolean hasDim = false;
+    public static boolean hasDim = true;
     public static boolean hasSeed = false;
     public static boolean isRunning = false;
 
@@ -61,18 +61,9 @@ public class Conway
     private static void startGame ()
     {
         // Create a new board with the given dimensions
-        Board board = new Board(dimIn);
+        Board board = new Board(MAX_BOARD_SIZE);
         // Randomly seed the board with the given seed
         myBoard = board.seed(seedIn);
-    }
-
-    /**
-     * setWindowSize - Calculate the size of the window based on the size of the game board
-     */
-    public static void setWindowSize ()
-    {
-        // Window size should be the total board size plus a buffer on either side
-        windowSize = (dimIn * CELL_SIZE) + 2 * BUFFER_DISTANCE;
     }
 
     /**
@@ -80,8 +71,6 @@ public class Conway
      */
     public static void run()
     {
-        setWindowSize();
-
         // Create the JFrame that the game will be in
         JFrame frame = new JFrame("Conway's Game of Life");
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -89,7 +78,7 @@ public class Conway
                 System.exit(0);
             };
         });
-        frame.setSize(windowSize, windowSize + 27);
+        frame.setSize(WINDOW_SIZE, WINDOW_SIZE + 27);
 
         Canvas newCanvas = new Canvas();
         frame.getContentPane().add(newCanvas);
@@ -188,45 +177,45 @@ public class Conway
         c.gridy = 0;
         pane.add(pauseButton, c);
 
-        JTextField dimField = new JTextField();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0.5;
-        c.gridx = 1;
-        c.gridy = 1;
-        pane.add(dimField, c);
-
-        JButton dimButton = new JButton("Set Dimensions");
-        dimButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String getText = dimField.getText();
-                if (getText.matches("\\d+"))
-                {
-                    int input = Integer.parseInt(getText);
-                    if (input < 1 || input > MAX_GAME_SIZE)
-                    {
-                        displayErrorWindow("Please enter an integer from 1 to " + MAX_GAME_SIZE + '.');
-                        return;
-                    }
-
-                    dimIn = input;
-                    hasDim = true;
-                    if (hasSeed)
-                    {
-                        startButton.setEnabled(true);
-                    }
-                }
-                else
-                {
-                    displayErrorWindow("Please enter an integer from 1 to ");
-                }
-            }
-        });
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0.5;
-        c.gridx = 0;
-        c.gridy = 1;
-        pane.add(dimButton, c);
+//        JTextField dimField = new JTextField();
+//        c.fill = GridBagConstraints.HORIZONTAL;
+//        c.weightx = 0.5;
+//        c.gridx = 1;
+//        c.gridy = 1;
+//        pane.add(dimField, c);
+//
+//        JButton dimButton = new JButton("Set Dimensions");
+//        dimButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                String getText = dimField.getText();
+//                if (getText.matches("\\d+"))
+//                {
+//                    int input = Integer.parseInt(getText);
+//                    if (input < 1 || input > MAX_GAME_SIZE)
+//                    {
+//                        displayErrorWindow("Please enter an integer from 1 to " + MAX_GAME_SIZE + '.');
+//                        return;
+//                    }
+//
+//                    MAX_BOARD_SIZE = input;
+//                    hasDim = true;
+//                    if (hasSeed)
+//                    {
+//                        startButton.setEnabled(true);
+//                    }
+//                }
+//                else
+//                {
+//                    displayErrorWindow("Please enter an integer from 1 to ");
+//                }
+//            }
+//        });
+//        c.fill = GridBagConstraints.HORIZONTAL;
+//        c.weightx = 0.5;
+//        c.gridx = 0;
+//        c.gridy = 1;
+//        pane.add(dimButton, c);
 
         JTextField seedField = new JTextField();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -275,7 +264,7 @@ public class Conway
 
         //Start with a black pen on a white background
         hiddenGraphics.setColor(Color.white);
-        hiddenGraphics.fillRect(0, 0, windowSize, windowSize);
+        hiddenGraphics.fillRect(0, 0, WINDOW_SIZE, WINDOW_SIZE);
         hiddenGraphics.setColor(Color.black);
 
         //Draw the next frame in the game animation
@@ -299,9 +288,9 @@ public class Conway
         int currX = BUFFER_DISTANCE;
         int currY = BUFFER_DISTANCE;
         canvas.setColor(Color.black);
-        for (int x = 0; x < dimIn; x++)
+        for (int x = BOARD_OFFSET; x < MAX_BOARD_SIZE - BOARD_OFFSET; x++)
         {
-            for (int y = 0; y < dimIn; y++)
+            for (int y = BOARD_OFFSET; y < MAX_BOARD_SIZE - BOARD_OFFSET; y++)
             {
                 if (myBoard.isAlive(x, y))
                 {
