@@ -10,7 +10,8 @@ public class Board {
     private int dim;
     private boolean seedComplete;
     private boolean[][] grid;
-    Random generator;
+    private Random generator;
+    private final int THRESHOLD = 10;
 
     /**
      * Board - Default constructor for Board class
@@ -65,19 +66,26 @@ public class Board {
      *
      * @param seed String to input random number
      */
-    public void seed (int seed)
+    public Board seed (int seed)
     {
         generator = new Random((long) seed);
+        int start = (int) 2 * dim / 5;
+        int stop = dim - start;
 
-        for (int i = 0; i < dim; i ++)
+        for (int x = start; x < stop; x ++)
         {
-            for (int j = 0; j < dim; j++)
+            for (int y = start; y < stop; y++)
             {
-                grid[i][j] = generator.nextBoolean();
+                if (generator.nextInt(100) < THRESHOLD)
+                {
+                    this.grid[x][y] = true;
+                }
             }
         }
 
         seedComplete = true;
+
+        return this;
     }
 
     /**
@@ -143,11 +151,6 @@ public class Board {
                 }
             }
         }
-    }
-
-    private void nextGeneration (boolean[][] newGrid)
-    {
-        this.grid = newGrid;
     }
 
     public int totalLiving ()

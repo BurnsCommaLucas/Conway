@@ -5,25 +5,49 @@ import java.awt.*;
 import javax.swing.*;
 import java.lang.Integer;
 
-import static java.lang.Thread.sleep;
-
+/**
+ * Conway - A small version of Conway's Game of Life.
+ *          http://www.conwaylife.com/wiki/Conway's_Game_of_Life
+ *          Code Excerpts from: Andrew Nuxoll
+ *                              https://docs.oracle.com/javase/tutorial/uiswing/
+ *                                  examples/layout/GridBagLayoutDemoProject/
+ *
+ * @author Lucas Burns
+ *
+ * @version 19 Feb 2016
+ */
 public class Conway
 {
-    public static Canvas myCanvas = null;
-    public static BufferStrategy strategy = null;
+    // ==========================================
+    // Constants
+    // ==========================================
+    public static final int MAX_GAME_SIZE = 100;
+    public static final int BUFFER_DISTANCE = 15;
+    public static final int CELL_SIZE = 10;
 
-    public static final int MAX_GAME_SIZE = 20;
-    public static final int WINDOW_WIDTH = 600;
-    public static final int WINDOW_HEIGHT = 600;
-    public static boolean isRunning = false;
+    // ==========================================
+    // Class parameters
+    // ==========================================
     public static int dimIn = 1;
     public static int seedIn = 0;
+    public static int windowSize = 0;
+
     public static boolean hasDim = false;
     public static boolean hasSeed = false;
+    public static boolean isRunning = false;
 
+    public static Canvas myCanvas = null;
+    public static BufferStrategy strategy = null;
+    public static Board myBoard = null;
 
+    /**
+     * main - Method to kick the whole thing off
+     * @param args Command line input parameters
+     */
     public static void main (String[] args)
     {
+        //Schedule a job for the event-dispatching thread:
+        //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI();
@@ -31,71 +55,82 @@ public class Conway
         });
     }
 
-    public Conway(Canvas initCanvas)
+    /**
+     * startGame - Initializes board with user input
+     */
+    private static void startGame ()
     {
-        myCanvas = initCanvas;
+        // Create a new board with the given dimensions
+        Board board = new Board(dimIn);
+        // Randomly seed the board with the given seed
+        myBoard = board.seed(seedIn);
     }
 
-    public static void repaint() {
-        //Retrieve the canvas used for double buffering
-        Graphics hiddenCanvas = strategy.getDrawGraphics();
-
-        //Start with a black pen on a white background
-        hiddenCanvas.setColor(Color.white);
-        hiddenCanvas.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-        hiddenCanvas.setColor(Color.black);
-
-        //Draw the next frame in the game animation
-        paint(hiddenCanvas);
-
-        //Display the new canvas to the user
-        strategy.show();
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException ie) {
-            //it's safe to ignore this
-        }
+    /**
+     * setWindowSize - Calculate the size of the window based on the size of the game board
+     */
+    public static void setWindowSize ()
+    {
+        // Window size should be the total board size plus a buffer on either side
+        windowSize = (dimIn * CELL_SIZE) + 2 * BUFFER_DISTANCE;
     }
 
-    public static void paint (Graphics canvas)
+    /**
+     * run - Opens a new window for the game to play in, sets up canvas/buffer,
+     */
+    public static void run()
     {
-        canvas.setColor(Color.black);
-        canvas.drawRect(10, 10, 100, 100);
-    }
+        setWindowSize();
 
-    public static void setup()
-    {
+        // Create the JFrame that the game will be in
         JFrame frame = new JFrame("Conway's Game of Life");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                System.exit(0);
+            };
+        });
+        frame.setSize(windowSize, windowSize + 27);
 
         Canvas newCanvas = new Canvas();
         frame.getContentPane().add(newCanvas);
 
-        Conway newGame = new Conway(newCanvas);
+        myCanvas = newCanvas;
         frame.setVisible(true);
 
-        newGame.run();
-    }
+        isRunning = true;
 
-    public static void run ()
-    {
         myCanvas.createBufferStrategy(2);
         strategy = myCanvas.getBufferStrategy();
 
         startGame();
 
-        while (isRunning)
+        while (isRunning && myBoard.totalLiving() > 0)
         {
+            myBoard.advance();
             repaint();
-
+            try
+            {
+                Thread.sleep(50);
+            }
+            catch(InterruptedException ie)
+            {
+                //it's safe to ignore this
+            }
         }
     }
 
-    private static void createAndShowGUI() {
+    /**
+     * createAndShowGUI - Creates the start window
+     */
+    private static void createAndShowGUI()
+    {
         //Create and set up the window.
         JFrame frame = new JFrame("Conway's Game of Life");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                System.exit(0);
+            };
+        });
 
         //Set up the content pane.
         addComponentsToPane(frame.getContentPane());
@@ -105,6 +140,10 @@ public class Conway
         frame.setVisible(true);
     }
 
+    /**
+     *
+     * @param pane Area to add content
+     */
     public static void addComponentsToPane(Container pane)
     {
         pane.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
@@ -117,7 +156,7 @@ public class Conway
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setup();
+                run();
             }
         });
         c.weightx = 0.5;
@@ -166,7 +205,7 @@ public class Conway
                     int input = Integer.parseInt(getText);
                     if (input < 1 || input > MAX_GAME_SIZE)
                     {
-                        displayErrorWindow("Please enter an integer from 1 to 20.");
+                        displayErrorWindow("Please enter an integer from 1 to " + MAX_GAME_SIZE + '.');
                         return;
                     }
 
@@ -179,7 +218,7 @@ public class Conway
                 }
                 else
                 {
-                    displayErrorWindow("Please enter an integer from 1 to 20.");
+                    displayErrorWindow("Please enter an integer from 1 to ");
                 }
             }
         });
@@ -229,17 +268,53 @@ public class Conway
         JOptionPane.showMessageDialog(null, message, "Error", messageType);
     }
 
-    /**
-     * startGame - Initializes board with user input and starts game
-     *
-     */
-    static private void startGame ()
+    public static void repaint()
     {
-        Board board = new Board(5);
+        //Retrieve the canvas used for double buffering
+        Graphics hiddenGraphics = strategy.getDrawGraphics();
 
-        // If user input a seed then call board.seed(inputSeed);
+        //Start with a black pen on a white background
+        hiddenGraphics.setColor(Color.white);
+        hiddenGraphics.fillRect(0, 0, windowSize, windowSize);
+        hiddenGraphics.setColor(Color.black);
 
-        // For now just do this
-        board.seed(seedIn);
+        //Draw the next frame in the game animation
+        paint(hiddenGraphics);
+
+        //Display the new canvas to the user
+        strategy.show();
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException ie) {
+            //it's safe to ignore this
+        }
+    }
+
+    /**
+     * paint -
+     * @param canvas Graphics object that will be drawn on
+     */
+    public static void paint (Graphics canvas)
+    {
+        int currX = BUFFER_DISTANCE;
+        int currY = BUFFER_DISTANCE;
+        canvas.setColor(Color.black);
+        for (int x = 0; x < dimIn; x++)
+        {
+            for (int y = 0; y < dimIn; y++)
+            {
+                if (myBoard.isAlive(x, y))
+                {
+                    canvas.fillRect(currX, currY, CELL_SIZE, CELL_SIZE);
+                }
+                else
+                {
+                    canvas.drawRect(currX, currY, CELL_SIZE, CELL_SIZE);
+                }
+                currY = currY + CELL_SIZE;
+            }
+            currY = BUFFER_DISTANCE;
+            currX = currX + CELL_SIZE;
+        }
     }
 }
