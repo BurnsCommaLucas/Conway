@@ -9,6 +9,7 @@ import java.lang.Integer;
  * Conway - A small version of Conway's Game of Life.
  *          http://www.conwaylife.com/wiki/Conway's_Game_of_Life
  *          Code Excerpts from: Andrew Nuxoll
+ *                              &
  *                              https://docs.oracle.com/javase/tutorial/uiswing/
  *                                  examples/layout/GridBagLayoutDemoProject/
  *
@@ -23,9 +24,9 @@ public class Conway
     // ==========================================
     public static final int MAX_BOARD_SIZE = 1000;
     public static final int BUFFER_DISTANCE = 15;
-    public static final int CELL_SIZE = 5;
+    public static final int CELL_SIZE = 4;
     public static final int BOARD_OFFSET = (int) Math.floor(0.4 * MAX_BOARD_SIZE);
-    public static final int WINDOW_SIZE = (200 * CELL_SIZE) + (2 * BUFFER_DISTANCE);
+    public static final int WINDOW_SIZE = (BOARD_OFFSET/2 * CELL_SIZE) + (2 * BUFFER_DISTANCE);
 
     // ==========================================
     // Class parameters
@@ -106,6 +107,8 @@ public class Conway
                 //it's safe to ignore this
             }
         }
+
+        popup("Game Over", "Your colony survived for " + myBoard.getGeneration() + " generations.");
     }
 
     /**
@@ -183,7 +186,7 @@ public class Conway
 //        c.gridx = 1;
 //        c.gridy = 1;
 //        pane.add(dimField, c);
-//
+
 //        JButton dimButton = new JButton("Set Dimensions");
 //        dimButton.addActionListener(new ActionListener() {
 //            @Override
@@ -194,7 +197,7 @@ public class Conway
 //                    int input = Integer.parseInt(getText);
 //                    if (input < 1 || input > MAX_GAME_SIZE)
 //                    {
-//                        displayErrorWindow("Please enter an integer from 1 to " + MAX_GAME_SIZE + '.');
+//                        popup("Please enter an integer from 1 to " + MAX_GAME_SIZE + '.');
 //                        return;
 //                    }
 //
@@ -207,7 +210,7 @@ public class Conway
 //                }
 //                else
 //                {
-//                    displayErrorWindow("Please enter an integer from 1 to ");
+//                    popup("Please enter an integer from 1 to ");
 //                }
 //            }
 //        });
@@ -240,7 +243,7 @@ public class Conway
                 }
                 else
                 {
-                    displayErrorWindow("Please enter an integer.");
+                    popup("Error", "Please enter an integer.");
                 }
             }
         });
@@ -251,10 +254,10 @@ public class Conway
         pane.add(seedButton, c);
     }
 
-    public static void displayErrorWindow (String message)
+    public static void popup (String name, String message)
     {
         int messageType = JOptionPane.PLAIN_MESSAGE;
-        JOptionPane.showMessageDialog(null, message, "Error", messageType);
+        JOptionPane.showMessageDialog(null, message, name, messageType);
     }
 
     public static void repaint()

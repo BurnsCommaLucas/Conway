@@ -1,17 +1,24 @@
+import java.util.Random;
+
 /**
  * Created by Lucas on 2/18/16.
  */
-import java.util.Random;
-import java.util.Date;
+public class Board
+{
+    // ==========================================
+    // Constants
+    // ==========================================
+    private final int THRESHOLD = 50;
 
-public class Board {
-
-    // Class variables
+    // ==========================================
+    // Class parameters
+    // ==========================================
     private int dim;
+    private int genNum;
     private boolean seedComplete;
     private boolean[][] grid;
+    private boolean[][] emptyGrid;
     private Random generator;
-    private final int THRESHOLD = 3;
 
     /**
      * Board - Default constructor for Board class
@@ -19,6 +26,7 @@ public class Board {
     public Board()
     {
         dim = 10;
+        genNum = 0;
         seedComplete = false;
         grid = new boolean[dim][dim];
 
@@ -26,6 +34,7 @@ public class Board {
         {
             for (int j = 0; j < dim; j++)
             {
+                emptyGrid[i][j] = false;
                 grid[i][j] = false;
             }
         }
@@ -39,6 +48,7 @@ public class Board {
     public Board(int initDim)
     {
         dim = initDim;
+        genNum = 0;
         seedComplete = false;
         grid = new boolean[dim][dim];
 
@@ -118,6 +128,8 @@ public class Board {
         {
             for (int dy = -1; dy <= 1; dy++)
             {
+                if (dx == 0 && dy == 0) continue;
+
                 if (x + dx >= 0 && x + dx < this.getDim() &&
                         y + dy >= 0 && y + dy < this.getDim())
                 {
@@ -137,7 +149,8 @@ public class Board {
      */
     public void advance ()
     {
-        boolean[][] newGrid = this.grid;
+        this.genNum++;
+        boolean[][] newGrid = emptyGrid;
 
         for (int x = 0; x < this.dim; x++)
         {
@@ -147,9 +160,9 @@ public class Board {
 
                 if (this.isAlive(x, y))
                 {
-                    if (adj < 2 || adj > 3)
+                    if (adj == 2 || adj == 3)
                     {
-                        newGrid[x][y] = false;
+                        newGrid[x][y] = true;
                     }
                 }
                 else
@@ -183,5 +196,10 @@ public class Board {
         }
 
         return count;
+    }
+
+    public int getGeneration ()
+    {
+        return this.genNum;
     }
 }
